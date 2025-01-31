@@ -1,0 +1,83 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2212                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+libs            (OpenFOAM fieldFunctionObjects);
+
+application     simpleFoam;
+
+startFrom       latestTime;	//startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         2000;	//1000;	//600;	//300	//150;	//200	//500;	
+
+deltaT          1;
+
+writeControl    timeStep;
+
+writeInterval   10;	//2;	//5	//500;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression on;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+functions
+{
+	forces
+	{
+		type            forceCoeffs;
+		libs            (forces);
+		writeControl    timeStep;
+		writeInterval   1;
+
+		patches
+		(
+		    RaceCar
+		);
+
+		rhoInf      1.225;
+		rho	    rhoInf;
+
+		CofR        (0 0 0);
+		liftDir     (0 0 1);	//direction of lift force acting
+		dragDir     (0 1 0);	//direction of draf force acting
+		pitchAxis   (1 0 0);
+		magUInf     22.2;	//inlet velocity m/s
+		lRef        1;
+		Aref        1.68;	//38		//37984900;(area of the car)
+	}
+    // Demonstrate runTimePostProcessing
+    //#include "visualization"
+
+    // Do some other functionObjects
+    //#include "forceCoeffs"
+    //#include "stabilizationSchemes"
+}
+
+
+// ************************************************************************* //

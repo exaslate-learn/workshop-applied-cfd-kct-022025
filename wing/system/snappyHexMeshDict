@@ -1,0 +1,140 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2306                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      snappyHexMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#includeEtc "caseDicts/mesh/generation/snappyHexMeshDict.cfg"
+
+castellatedMesh on;
+snap            on;
+addLayers       on;
+
+geometry
+{
+    wing.obj
+    {
+        type closedTriSurfaceMesh;
+        name wing;
+    }
+    
+   refinementBox
+    {
+        type searchableBox;
+        min  (-2  -1  -6);
+        max  ( 4   1   6);
+    }
+}
+
+castellatedMeshControls
+{
+    maxLocalCells 100000;
+    maxGlobalCells 2000000;
+    minRefinementCells 10;
+    maxLoadUnbalance 0.10;
+    nCellsBetweenLevels 3;
+    refinementSurfaces
+    {
+        wing 
+        {
+            level (4 4);
+            patchInfo { type wall; }
+        }
+    }
+
+    refinementRegions
+    {
+        refinementBox
+        {
+            mode inside;
+            levels ((2 2));
+        }
+    }
+
+    locationInMesh (4 1 7);
+    locationOutMesh (0.5 0 0);
+
+    // Explicit feature edge refinement
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    // Specifies a level for any cell intersected by its edges.
+    // This is a featureEdgeMesh, read from constant/triSurface for now.
+    features
+    (
+        {
+            file "wing.eMesh";
+            level 2;
+        }
+    );
+
+    // Resolve sharp angles
+    resolveFeatureAngle 30;
+}
+
+snapControls
+{
+    explicitFeatureSnap    true;
+    implicitFeatureSnap    false;
+}
+
+addLayersControls
+{
+    layers
+    {
+    wing
+        {
+            nSurfaceLayers 5;//3
+        }
+    }
+
+    relativeSizes       false;//true;
+    expansionRatio      1.2;
+    finalLayerThickness 0.02;//0.025
+    minThickness        0.01;
+    nGrow 0;
+    featureAngle 130;
+    slipFeatureAngle 30;
+    nRelaxIter 3;
+    nSmoothSurfaceNormals 1;
+    nSmoothNormals 3;
+    nSmoothThickness 10;
+    maxFaceThicknessRatio 0.5;
+    maxThicknessToMedialRatio 0.3;
+    minMedialAxisAngle 90;
+    nBufferCellsNoExtrude 0;
+    nLayerIter 50;
+}
+
+// Generic mesh quality settings. At any undoable phase these determine
+// where to undo.
+meshQualityControls
+{
+    #include "meshQualityDict"
+
+
+    // Advanced
+
+    //- Number of error distribution iterations
+    nSmoothScale 4;
+    //- Amount to scale back displacement at error points
+    errorReduction 0.75;
+}
+
+writeFlags
+(
+);
+
+mergeTolerance 1e-6;
+
+
+// ************************************************************************* //
